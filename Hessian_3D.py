@@ -331,12 +331,6 @@ def hessianMatrixGenerator(contactData,kn,k_t,fullMatrix=True,cylinderHeight=1,p
         hessian3rdDimHolder = np.append(counter * np.ones(36), hessian3rdDimHolder)
 
 
-
-
-
-
-
-
 def hessianGenerator(radii,springConstants,contactInfo,outputDir,nameOfFile,snapShotRange=False,partialSave=False,cylinderHeight=1,particleDensity=1):
 
     """

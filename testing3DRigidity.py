@@ -1,9 +1,18 @@
 import numpy as np
 import sys
-sys.path.append(r"C:\Users\Mike van der Naald\Documents\code\rigidCluster3DData\newGithubRepo")
 import Configuration_altered as CF
 import Pebbles as PB
 import itertools
+import Hessian_3D
+
+"""
+Author:  Mike van der Naald and Finn Braaten
+In this file we aim to test various pebble games and the 3D frictional hessian approach on various lattice packings with
+different characteristics.  In the first portion we define helper functions that we will use in later portions.  In the
+second portion we give the positions and radii of various lattices so that we can test the rigidity algorithms in the 
+last portion.  Finally, in the third portion we run the rigidity algorithms on the aforementioned lattices and plot
+the results.
+"""
 
 def rigidClusterDataGenerator(pebbleObj, returnClusterIDs=True):
     """
@@ -94,6 +103,10 @@ def hessianDataGenerator(positions,radii,boxSize,slidingOrNot=0):
     #We are going to find contacting particles by looping over every particle pair and calculating their pairwise
     #distances and comparing that to the sum of their radii.
     for pos1 in positions:
+
+        #The outer loop needs to over every ith row in positions but the inner loop only needs to run over the (i+1)th
+        #row in positions, because we don't want to calculate the distance for redundant pairs of particles or for
+        #particles with themselves.
         particleJ = particleI+1
         for pos2 in positions[particleI+1:,:]:
             #Find the distance and normal vector between the two particles in PBC's
@@ -113,6 +126,19 @@ def hessianDataGenerator(positions,radii,boxSize,slidingOrNot=0):
 
     return contactData
 
+
+"""
+Below is testing the 3D Hessian and various pebble games with simple cubic, body centered cubic, and face centered
+cubic lattices.
+"""
+
+#For all lattices we can set normal and tangential spring stiffness' as well as whether each contact constrains one or
+#two degrees of freedom:
+kn=1
+k_t=kn
+slidingOrNot = 0 #Check how dof 0 is vs 1 (MIKE)
+
+
 #Simple Cubic Lattice SC
 positionsSCInit = np.array([[0,0,0],[0,1,0],[0,1,1],[0,0,1],[1,0,1],[1,1,1],[1,1,0],[1,0,0]])
 positionsSC = positionsSCInit
@@ -128,7 +154,7 @@ positionsSC = np.unique(positionsSC, axis=0)
 boxSizeSC=2*boxSizeSC
 radiiSC=radiiSC*np.ones(len(positionsSC))
 contactDataSC = hessianDataGenerator(positionsSC,radiiSC,boxSizeSC,0)
-
+hessianSC = Hessian_3D.hessianMatrixGenerator(contactDataSC,kn,k_t,slidingOrNot)
 
 
 #Body Centered Cubic Lattice BCC
@@ -146,7 +172,7 @@ positionsBCC = np.unique(positionsBCC, axis=0)
 boxSizeBCC=2*boxSizeBCC
 radiiBCC=radiiBCC*np.ones(len(positionsBCC))
 contactDataBCC = hessianDataGenerator(positionsBCC,radiiBCC,boxSizeBCC,0)
-
+hessianBCC = Hessian_3D.hessianMatrixGenerator(contactDataBCC,kn,k_t,slidingOrNot)
 
 
 #Face Centered Cubic lattice FCC
@@ -163,8 +189,13 @@ for shift in shifts:
 positionsFCC = np.unique(positionsFCC, axis=0)
 #Expand the boxsize
 boxSizeFCC=2*boxSizeFCC
+#
 radiiFCC=radiiFCC*np.ones(len(positionsFCC))
 contactDataFCC = hessianDataGenerator(positionsFCC,radiiFCC,boxSizeFCC,0)
+hessianFCC = Hessian_3D.hessianMatrixGenerator(contactDataFCC,kn,k_t,slidingOrNot)
+
+
+
 
 
 
