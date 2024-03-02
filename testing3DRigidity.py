@@ -3,7 +3,8 @@ import sys
 import Configuration_altered as CF
 import Pebbles as PB
 import itertools
-import Hessian_3D
+from matplotlib import pyplot
+#import Hessian_3D
 
 """
 Author:  Mike van der Naald and Finn Braaten
@@ -54,9 +55,8 @@ def rigidClusterDataGenerator(pebbleObj, returnClusterIDs=True):
     else:
         return clusterSizes, numBondsPerCluster
 
-def rigidClusterGenerator(contactList,k,l):
-    (numParticles,_) = np.shape(contactList)
-    radii=np.ones(numParticles)
+def rigidClusterGenerator(radii,contactList,k,l):
+    numParticles = len(radii)
     dataType = 'simulation'
     ThisConf = CF.Configuration(dataType, numParticles, radii)
     ThisConf.readSimdata(contactList)
@@ -126,24 +126,30 @@ def hessianDataGenerator(positions,radii,boxSize,slidingOrNot=0):
 
     return contactData
 
+def ifEmptySetZeroOtherwiseReturnMax(array):
+    if array.size==0:
+        return 0
+    else:
+        return np.max(array)
 
 """
-Below is testing the 3D Hessian and various pebble games with simple cubic, body centered cubic, and face centered
-cubic lattices.
+Part 2:  Assembling contact data for SC, BCC, and FCC lattice.
+Below is crafting the information required for the 3D Hessian and various pebble games with
+simple cubic, body centered cubic, and face centered cubic lattices.
 """
 
 #For all lattices we can set normal and tangential spring stiffness' as well as whether each contact constrains one or
 #two degrees of freedom:
 kn=1
 k_t=kn
-slidingOrNot = 0 #Check how dof 0 is vs 1 (MIKE)
+slidingOrNot = 0 #0 is not sliding, 1 is sliding
 
 
 #Simple Cubic Lattice SC
 positionsSCInit = np.array([[0,0,0],[0,1,0],[0,1,1],[0,0,1],[1,0,1],[1,1,1],[1,1,0],[1,0,0]])
 positionsSC = positionsSCInit
 radiiSC = 1/2
-boxSizeSC = np.array([2,2,2])+2*radiiSC
+boxSizeSC = np.array([2,2,2])
 #Expand the lattice so that particles don't interact with a single particle twice in periodic boundary conditions
 shifts = np.array([[0,1,0],[1,1,0],[1,0,0],[0,1,1],[1,1,1],[1,0,1],[0,0,1]])
 for shift in shifts:
@@ -154,14 +160,14 @@ positionsSC = np.unique(positionsSC, axis=0)
 boxSizeSC=2*boxSizeSC
 radiiSC=radiiSC*np.ones(len(positionsSC))
 contactDataSC = hessianDataGenerator(positionsSC,radiiSC,boxSizeSC,0)
-hessianSC = Hessian_3D.hessianMatrixGenerator(contactDataSC,kn,k_t,slidingOrNot)
+contactListSC = contactDataSC[:,:3]
 
 
 #Body Centered Cubic Lattice BCC
 positionsBCCInit = np.array([[0,0,0],[0,1,0],[0,1,1],[0,0,1],[1,0,1],[1,1,1],[1,1,0],[1,0,0],[.5,.5,.5]])
 positionsBCC = positionsBCCInit
 radiiBCC = np.sqrt(3)/4
-boxSizeBCC = np.array([1,1,1])+2*radiiBCC
+boxSizeBCC = np.array([1,1,1])
 #Expand the lattice so that particles don't interact with a single particle twice in periodic boundary conditions
 shifts = np.array([[0,1,0],[1,1,0],[1,0,0],[0,1,1],[1,1,1],[1,0,1],[0,0,1]])
 for shift in shifts:
@@ -172,15 +178,16 @@ positionsBCC = np.unique(positionsBCC, axis=0)
 boxSizeBCC=2*boxSizeBCC
 radiiBCC=radiiBCC*np.ones(len(positionsBCC))
 contactDataBCC = hessianDataGenerator(positionsBCC,radiiBCC,boxSizeBCC,0)
-hessianBCC = Hessian_3D.hessianMatrixGenerator(contactDataBCC,kn,k_t,slidingOrNot)
+contactListBCC = contactDataBCC[:,:3]
 
 
 #Face Centered Cubic lattice FCC
 a=2*np.sqrt(2)
+positionsFCC = np.array([[0,0,0],[1,0,0],[0,1,0],[0,0,1],[1,1,1],[1,1,0],[0,1,1]])
 positionsFCC = np.array([[0,0,0],[0,a,0],[0,a,a],[0,0,a],[a,0,a],[a,a,a],[a,a,0],[a,0,0],[a/2,a/2,0],[0,a/2,a/2],[a/2,0,a/2],[a/2,a,a/2],[a/2,a/2,a],[a,a/2,a/2]])
 positionsFCCInit = positionsFCC
 radiiFCC = 1
-boxSizeFCC = np.sqrt(8)*np.array([1,1,1])+2*radiiFCC
+boxSizeFCC = a*np.array([1,1,1])
 #Expand the lattice so that particles don't interact with a single particle twice in periodic boundary conditions
 shifts = np.array([[0,1,0],[1,1,0],[1,0,0],[0,1,1],[1,1,1],[1,0,1],[0,0,1]])
 for shift in shifts:
@@ -189,13 +196,77 @@ for shift in shifts:
 positionsFCC = np.unique(positionsFCC, axis=0)
 #Expand the boxsize
 boxSizeFCC=2*boxSizeFCC
-#
 radiiFCC=radiiFCC*np.ones(len(positionsFCC))
 contactDataFCC = hessianDataGenerator(positionsFCC,radiiFCC,boxSizeFCC,0)
-hessianFCC = Hessian_3D.hessianMatrixGenerator(contactDataFCC,kn,k_t,slidingOrNot)
+contactListFCC = contactDataFCC[:,:3]
+
+
+#Plot all the lattices for sanity check
+#fig = pyplot.figure()
+#ax = fig.add_subplot(projection='3d')
+#ax.scatter(positionsSC[:,0], positionsSC[:,1], positionsSC[:,2], marker='v',color="green",label="SC")
+#ax.scatter(positionsBCC[:,0], positionsBCC[:,1], positionsBCC[:,2], marker='o',color="red",label="BCC")
+#ax.scatter(positionsFCC[:,0], positionsFCC[:,1], positionsFCC[:,2], marker='v',color="black",label="FCC")
+#pyplot.legend()
+
+"""
+Running Various Pebble Games and Hessian Analysis' on the three crystalline lattices
+"""
+#(6,6) pebble game
+(k,l)=(6,6)
+#All contacts are sliding - 1 dof constrained per contact
+contactListSC[:,2]=0
+contactListBCC[:,2]=0
+contactListFCC[:,2]=0
+clusterSizesSC66_1dof, numBondsPerClusterSC66_1dof, clusterIDSC66_1dof = rigidClusterGenerator(radiiSC,contactListSC,k,l)
+clusterSizesBCC66_1dof, numBondsPerClusterBCC66_1dof, clusterIDBCC66_1dof = rigidClusterGenerator(radiiBCC,contactListBCC,k,l)
+clusterSizesFCC66_1dof, numBondsPerClusterFCC66_1dof, clusterIDFCC66_1dof = rigidClusterGenerator(radiiFCC,contactListFCC,k,l)
+
+#Set all contacts to non sliding - 2 dof constrained per contact
+contactListSC[:,2]=1
+contactListBCC[:,2]=1
+contactListFCC[:,2]=1
+clusterSizesSC66_2dof, numBondsPerClusterSC66_2dof, clusterIDSC66_2dof = rigidClusterGenerator(radiiSC,contactListSC,k,l)
+clusterSizesBCC66_2dof, numBondsPerClusterBCC66_2dof, clusterIDBCC66_2dof = rigidClusterGenerator(radiiBCC,contactListBCC,k,l)
+clusterSizesFCC66_2dof, numBondsPerClusterFCC66_2dof, clusterIDFCC66_2dof = rigidClusterGenerator(radiiFCC,contactListFCC,k,l)
+
+
+#(5,6) pebble game
+(k,l)=(5,6)
+#All contacts are sliding - 1 dof constrained per contact
+contactListSC[:,2]=0
+contactListBCC[:,2]=0
+contactListFCC[:,2]=0
+clusterSizesSC56_1dof, numBondsPerClusterSC56_1dof, clusterIDSC56_1dof = rigidClusterGenerator(radiiSC,contactListSC,k,l)
+clusterSizesBCC56_1dof, numBondsPerClusterBCC56_1dof, clusterIDBCC56_1dof = rigidClusterGenerator(radiiBCC,contactListBCC,k,l)
+clusterSizesFCC56_1dof, numBondsPerClusterFCC56_1dof, clusterIDFCC56_1dof = rigidClusterGenerator(radiiFCC,contactListFCC,k,l)
+
+#Set all contacts to non sliding - 2 dof constrained per contact
+contactListSC[:,2]=1
+contactListBCC[:,2]=1
+contactListFCC[:,2]=1
+clusterSizesSC56_2dof, numBondsPerClusterSC56_2dof, clusterIDSC56_2dof = rigidClusterGenerator(radiiSC,contactListSC,k,l)
+clusterSizesBCC56_2dof, numBondsPerClusterBCC56_2dof, clusterIDBCC56_2dof = rigidClusterGenerator(radiiBCC,contactListBCC,k,l)
+clusterSizesFCC56_2dof, numBondsPerClusterFCC56_2dof, clusterIDFCC56_2dof = rigidClusterGenerator(radiiFCC,contactListFCC,k,l)
 
 
 
 
-
+"""Plot Results"""
+fontsizeLabel=15
+#Plot size of cluster vs lattice type
+x=["Simple Cubic \n $Z=6$", "Body Centered Cubic \n $Z=8$","Face Centered Cubic \n $Z=12$"]
+clusterSizes66_1dof = [ifEmptySetZeroOtherwiseReturnMax(clusterSizesSC66_1dof),ifEmptySetZeroOtherwiseReturnMax(clusterSizesBCC66_1dof),ifEmptySetZeroOtherwiseReturnMax(clusterSizesFCC66_1dof)]
+clusterSizes66_2dof = [ifEmptySetZeroOtherwiseReturnMax(clusterSizesSC66_2dof),ifEmptySetZeroOtherwiseReturnMax(clusterSizesBCC66_1dof),ifEmptySetZeroOtherwiseReturnMax(clusterSizesFCC66_2dof)]
+clusterSizes56_1dof = [ifEmptySetZeroOtherwiseReturnMax(clusterSizesSC56_1dof),ifEmptySetZeroOtherwiseReturnMax(clusterSizesBCC56_1dof),ifEmptySetZeroOtherwiseReturnMax(clusterSizesFCC56_1dof)]
+clusterSizes56_2dof = [ifEmptySetZeroOtherwiseReturnMax(clusterSizesSC56_2dof),ifEmptySetZeroOtherwiseReturnMax(clusterSizesBCC56_2dof),ifEmptySetZeroOtherwiseReturnMax(clusterSizesFCC56_2dof)]
+pyplot.plot(x,clusterSizes66_1dof,marker='o',label="(6,6) All Contacts Sliding")
+pyplot.plot(x,clusterSizes66_2dof,marker='o',label="(6,6) All Contacts Not Sliding")
+pyplot.plot(x,clusterSizes56_1dof,marker='o',label="(5,6) All Contacts Sliding")
+pyplot.plot(x,clusterSizes56_2dof,marker='o',label="(5,6) All Contacts Not Sliding")
+pyplot.xlabel("Lattice Type",fontsize=fontsizeLabel)
+pyplot.ylabel(r"Normalized Cluster Size $\frac{S}{N}$",fontsize=fontsizeLabel)
+pyplot.legend(fontsize=fontsizeLabel)
+pyplot.ylim((-0.001,1))
+pyplot.tight_layout()
 

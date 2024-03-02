@@ -44,7 +44,8 @@ class Pebbles:
                 elif (self.game1 == 3):
                     self.AddFrictionalBonds(conf)
             else:
-                print("Atypical pebble game, stopping for now as unclear meaning. If you really must, construct a new modifier type to deal with this game and any extra / deleted contacts.")
+                self.AddFrictionalBonds(conf)
+                #print("Atypical pebble game, stopping for now as unclear meaning. If you really must, construct a new modifier type to deal with this game and any extra / deleted contacts.")
         else:
             print("Modified pebble games (2nd neighbours, or single contacts, or deleted contacts). Not implemented yet, please construct new functions similar to AddFrictionalBonds(conf) to modify contact lists.")
         # Reverse connection object: necessary for marking both rigid clusters and overconstrained regions
@@ -275,9 +276,10 @@ class Pebbles:
         links = self.conmat[i]
         for c in links:
             if (self.Ifull[c] == i):
-                u = self.Jfull[c]
+                u = int(self.Jfull[c])
             else:
-                u = self.Ifull[c]
+                u = int(self.Ifull[c])
+
             if marked[u] == False:
                 seen = -1*np.zeros((self.N,)) > 0
                 path = -1*np.zeros((self.N,), dtype=np.int)

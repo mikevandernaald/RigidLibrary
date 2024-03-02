@@ -75,6 +75,7 @@ class Configuration:
             self.noConf = False
             self.I = contactData[:,0]
             self.J = contactData[:,1]
+            #0 is not sliding, 1 is sliding
             self.fullmobi = contactData[:,2]
             self.noConf = False
             self.ncon = len(self.I)
