@@ -161,112 +161,149 @@ boxSizeSC=2*boxSizeSC
 radiiSC=radiiSC*np.ones(len(positionsSC))
 contactDataSC = hessianDataGenerator(positionsSC,radiiSC,boxSizeSC,0)
 contactListSC = contactDataSC[:,:3]
+#Check number of neighbors of particle 0
+print("Particle 0 has "+str(np.sum(contactListSC[:,:2]==0))+" neighbors")
+#Plot the lattice for a sanity check
+fig = pyplot.figure()
+ax = fig.add_subplot(projection='3d')
+ax.scatter(positionsSC[:,0], positionsSC[:,1], positionsSC[:,2], marker='v',color="green",label="SC")
+pyplot.legend()
 
 
-#Body Centered Cubic Lattice BCC
-positionsBCCInit = np.array([[0,0,0],[0,1,0],[0,1,1],[0,0,1],[1,0,1],[1,1,1],[1,1,0],[1,0,0],[.5,.5,.5]])
-positionsBCC = positionsBCCInit
-radiiBCC = np.sqrt(3)/4
-boxSizeBCC = np.array([1,1,1])
-#Expand the lattice so that particles don't interact with a single particle twice in periodic boundary conditions
-shifts = np.array([[0,1,0],[1,1,0],[1,0,0],[0,1,1],[1,1,1],[1,0,1],[0,0,1]])
-for shift in shifts:
-    positionsBCC = np.vstack((positionsBCC,positionsBCCInit+shift*np.max(boxSizeBCC)))
-#This naive way of shifting the lattice gives doubles of interior boundary particles
-positionsBCC = np.unique(positionsBCC, axis=0)
-#Expand the boxsize
-boxSizeBCC=2*boxSizeBCC
-radiiBCC=radiiBCC*np.ones(len(positionsBCC))
-contactDataBCC = hessianDataGenerator(positionsBCC,radiiBCC,boxSizeBCC,0)
-contactListBCC = contactDataBCC[:,:3]
-
-
-#Face Centered Cubic lattice FCC
-a=2*np.sqrt(2)
-positionsFCC = np.array([[0,0,0],[1,0,0],[0,1,0],[0,0,1],[1,1,1],[1,1,0],[0,1,1]])
-positionsFCC = np.array([[0,0,0],[0,a,0],[0,a,a],[0,0,a],[a,0,a],[a,a,a],[a,a,0],[a,0,0],[a/2,a/2,0],[0,a/2,a/2],[a/2,0,a/2],[a/2,a,a/2],[a/2,a/2,a],[a,a/2,a/2]])
-positionsFCCInit = positionsFCC
-radiiFCC = 1
-boxSizeFCC = a*np.array([1,1,1])
-#Expand the lattice so that particles don't interact with a single particle twice in periodic boundary conditions
-shifts = np.array([[0,1,0],[1,1,0],[1,0,0],[0,1,1],[1,1,1],[1,0,1],[0,0,1]])
-for shift in shifts:
-    positionsFCC = np.vstack((positionsFCC,positionsFCCInit+shift*np.max(boxSizeFCC)))
-#This naive way of shifting the lattice gives doubles of interior boundary particles
-positionsFCC = np.unique(positionsFCC, axis=0)
-#Expand the boxsize
-boxSizeFCC=2*boxSizeFCC
-radiiFCC=radiiFCC*np.ones(len(positionsFCC))
-contactDataFCC = hessianDataGenerator(positionsFCC,radiiFCC,boxSizeFCC,0)
-contactListFCC = contactDataFCC[:,:3]
-
-
-#Plot all the lattices for sanity check
-#fig = pyplot.figure()
-#ax = fig.add_subplot(projection='3d')
-#ax.scatter(positionsSC[:,0], positionsSC[:,1], positionsSC[:,2], marker='v',color="green",label="SC")
-#ax.scatter(positionsBCC[:,0], positionsBCC[:,1], positionsBCC[:,2], marker='o',color="red",label="BCC")
-#ax.scatter(positionsFCC[:,0], positionsFCC[:,1], positionsFCC[:,2], marker='v',color="black",label="FCC")
-#pyplot.legend()
 
 """
-Running Various Pebble Games and Hessian Analysis' on the three crystalline lattices
+Mike 3/7/2023
+This is where we will run various pebble games and hessian analysis' on the SC lattice.  Right now we neither the pebble 
+game or the hessian analysis' are working.  Once on of them is working I will uncomment out the relevant code.
 """
-#(6,6) pebble game
-(k,l)=(6,6)
-#All contacts are sliding - 1 dof constrained per contact
-contactListSC[:,2]=0
-contactListBCC[:,2]=0
-contactListFCC[:,2]=0
-clusterSizesSC66_1dof, numBondsPerClusterSC66_1dof, clusterIDSC66_1dof = rigidClusterGenerator(radiiSC,contactListSC,k,l)
-clusterSizesBCC66_1dof, numBondsPerClusterBCC66_1dof, clusterIDBCC66_1dof = rigidClusterGenerator(radiiBCC,contactListBCC,k,l)
-clusterSizesFCC66_1dof, numBondsPerClusterFCC66_1dof, clusterIDFCC66_1dof = rigidClusterGenerator(radiiFCC,contactListFCC,k,l)
+# #(6,6) pebble game
+# (k,l)=(6,6)
+# #All contacts are sliding - 1 dof constrained per contact
+# contactListSC[:,2]=0
+# contactListBCC[:,2]=0
+# contactListFCC[:,2]=0
+# clusterSizesSC66_1dof, numBondsPerClusterSC66_1dof, clusterIDSC66_1dof = rigidClusterGenerator(radiiSC,contactListSC,k,l)
+# clusterSizesBCC66_1dof, numBondsPerClusterBCC66_1dof, clusterIDBCC66_1dof = rigidClusterGenerator(radiiBCC,contactListBCC,k,l)
+# clusterSizesFCC66_1dof, numBondsPerClusterFCC66_1dof, clusterIDFCC66_1dof = rigidClusterGenerator(radiiFCC,contactListFCC,k,l)
+#
+# #Set all contacts to non sliding - 2 dof constrained per contact
+# contactListSC[:,2]=1
+# contactListBCC[:,2]=1
+# contactListFCC[:,2]=1
+# clusterSizesSC66_2dof, numBondsPerClusterSC66_2dof, clusterIDSC66_2dof = rigidClusterGenerator(radiiSC,contactListSC,k,l)
+# clusterSizesBCC66_2dof, numBondsPerClusterBCC66_2dof, clusterIDBCC66_2dof = rigidClusterGenerator(radiiBCC,contactListBCC,k,l)
+# clusterSizesFCC66_2dof, numBondsPerClusterFCC66_2dof, clusterIDFCC66_2dof = rigidClusterGenerator(radiiFCC,contactListFCC,k,l)
+#
+#
+# #(5,6) pebble game
+# (k,l)=(5,6)
+# #All contacts are sliding - 1 dof constrained per contact
+# contactListSC[:,2]=0
+# contactListBCC[:,2]=0
+# contactListFCC[:,2]=0
+# clusterSizesSC56_1dof, numBondsPerClusterSC56_1dof, clusterIDSC56_1dof = rigidClusterGenerator(radiiSC,contactListSC,k,l)
+# clusterSizesBCC56_1dof, numBondsPerClusterBCC56_1dof, clusterIDBCC56_1dof = rigidClusterGenerator(radiiBCC,contactListBCC,k,l)
+# clusterSizesFCC56_1dof, numBondsPerClusterFCC56_1dof, clusterIDFCC56_1dof = rigidClusterGenerator(radiiFCC,contactListFCC,k,l)
+#
+# #Set all contacts to non sliding - 2 dof constrained per contact
+# contactListSC[:,2]=1
+# contactListBCC[:,2]=1
+# contactListFCC[:,2]=1
+# clusterSizesSC56_2dof, numBondsPerClusterSC56_2dof, clusterIDSC56_2dof = rigidClusterGenerator(radiiSC,contactListSC,k,l)
+# clusterSizesBCC56_2dof, numBondsPerClusterBCC56_2dof, clusterIDBCC56_2dof = rigidClusterGenerator(radiiBCC,contactListBCC,k,l)
+# clusterSizesFCC56_2dof, numBondsPerClusterFCC56_2dof, clusterIDFCC56_2dof = rigidClusterGenerator(radiiFCC,contactListFCC,k,l)
+#
+#
+#
+#
+# """Plot Results"""
+# fontsizeLabel=15
+# #Plot size of cluster vs lattice type
+# x=["Simple Cubic \n $Z=6$", "Body Centered Cubic \n $Z=8$","Face Centered Cubic \n $Z=12$"]
+# clusterSizes66_1dof = [ifEmptySetZeroOtherwiseReturnMax(clusterSizesSC66_1dof),ifEmptySetZeroOtherwiseReturnMax(clusterSizesBCC66_1dof),ifEmptySetZeroOtherwiseReturnMax(clusterSizesFCC66_1dof)]
+# clusterSizes66_2dof = [ifEmptySetZeroOtherwiseReturnMax(clusterSizesSC66_2dof),ifEmptySetZeroOtherwiseReturnMax(clusterSizesBCC66_1dof),ifEmptySetZeroOtherwiseReturnMax(clusterSizesFCC66_2dof)]
+# clusterSizes56_1dof = [ifEmptySetZeroOtherwiseReturnMax(clusterSizesSC56_1dof),ifEmptySetZeroOtherwiseReturnMax(clusterSizesBCC56_1dof),ifEmptySetZeroOtherwiseReturnMax(clusterSizesFCC56_1dof)]
+# clusterSizes56_2dof = [ifEmptySetZeroOtherwiseReturnMax(clusterSizesSC56_2dof),ifEmptySetZeroOtherwiseReturnMax(clusterSizesBCC56_2dof),ifEmptySetZeroOtherwiseReturnMax(clusterSizesFCC56_2dof)]
+# pyplot.plot(x,clusterSizes66_1dof,marker='o',label="(6,6) All Contacts Sliding")
+# pyplot.plot(x,clusterSizes66_2dof,marker='o',label="(6,6) All Contacts Not Sliding")
+# pyplot.plot(x,clusterSizes56_1dof,marker='o',label="(5,6) All Contacts Sliding")
+# pyplot.plot(x,clusterSizes56_2dof,marker='o',label="(5,6) All Contacts Not Sliding")
+# pyplot.xlabel("Lattice Type",fontsize=fontsizeLabel)
+# pyplot.ylabel(r"Normalized Cluster Size $\frac{S}{N}$",fontsize=fontsizeLabel)
+# pyplot.legend(fontsize=fontsizeLabel)
+# pyplot.ylim((-0.001,1))
+# pyplot.tight_layout()
 
-#Set all contacts to non sliding - 2 dof constrained per contact
-contactListSC[:,2]=1
-contactListBCC[:,2]=1
-contactListFCC[:,2]=1
-clusterSizesSC66_2dof, numBondsPerClusterSC66_2dof, clusterIDSC66_2dof = rigidClusterGenerator(radiiSC,contactListSC,k,l)
-clusterSizesBCC66_2dof, numBondsPerClusterBCC66_2dof, clusterIDBCC66_2dof = rigidClusterGenerator(radiiBCC,contactListBCC,k,l)
-clusterSizesFCC66_2dof, numBondsPerClusterFCC66_2dof, clusterIDFCC66_2dof = rigidClusterGenerator(radiiFCC,contactListFCC,k,l)
-
-
-#(5,6) pebble game
-(k,l)=(5,6)
-#All contacts are sliding - 1 dof constrained per contact
-contactListSC[:,2]=0
-contactListBCC[:,2]=0
-contactListFCC[:,2]=0
-clusterSizesSC56_1dof, numBondsPerClusterSC56_1dof, clusterIDSC56_1dof = rigidClusterGenerator(radiiSC,contactListSC,k,l)
-clusterSizesBCC56_1dof, numBondsPerClusterBCC56_1dof, clusterIDBCC56_1dof = rigidClusterGenerator(radiiBCC,contactListBCC,k,l)
-clusterSizesFCC56_1dof, numBondsPerClusterFCC56_1dof, clusterIDFCC56_1dof = rigidClusterGenerator(radiiFCC,contactListFCC,k,l)
-
-#Set all contacts to non sliding - 2 dof constrained per contact
-contactListSC[:,2]=1
-contactListBCC[:,2]=1
-contactListFCC[:,2]=1
-clusterSizesSC56_2dof, numBondsPerClusterSC56_2dof, clusterIDSC56_2dof = rigidClusterGenerator(radiiSC,contactListSC,k,l)
-clusterSizesBCC56_2dof, numBondsPerClusterBCC56_2dof, clusterIDBCC56_2dof = rigidClusterGenerator(radiiBCC,contactListBCC,k,l)
-clusterSizesFCC56_2dof, numBondsPerClusterFCC56_2dof, clusterIDFCC56_2dof = rigidClusterGenerator(radiiFCC,contactListFCC,k,l)
 
 
 
-
-"""Plot Results"""
-fontsizeLabel=15
-#Plot size of cluster vs lattice type
-x=["Simple Cubic \n $Z=6$", "Body Centered Cubic \n $Z=8$","Face Centered Cubic \n $Z=12$"]
-clusterSizes66_1dof = [ifEmptySetZeroOtherwiseReturnMax(clusterSizesSC66_1dof),ifEmptySetZeroOtherwiseReturnMax(clusterSizesBCC66_1dof),ifEmptySetZeroOtherwiseReturnMax(clusterSizesFCC66_1dof)]
-clusterSizes66_2dof = [ifEmptySetZeroOtherwiseReturnMax(clusterSizesSC66_2dof),ifEmptySetZeroOtherwiseReturnMax(clusterSizesBCC66_1dof),ifEmptySetZeroOtherwiseReturnMax(clusterSizesFCC66_2dof)]
-clusterSizes56_1dof = [ifEmptySetZeroOtherwiseReturnMax(clusterSizesSC56_1dof),ifEmptySetZeroOtherwiseReturnMax(clusterSizesBCC56_1dof),ifEmptySetZeroOtherwiseReturnMax(clusterSizesFCC56_1dof)]
-clusterSizes56_2dof = [ifEmptySetZeroOtherwiseReturnMax(clusterSizesSC56_2dof),ifEmptySetZeroOtherwiseReturnMax(clusterSizesBCC56_2dof),ifEmptySetZeroOtherwiseReturnMax(clusterSizesFCC56_2dof)]
-pyplot.plot(x,clusterSizes66_1dof,marker='o',label="(6,6) All Contacts Sliding")
-pyplot.plot(x,clusterSizes66_2dof,marker='o',label="(6,6) All Contacts Not Sliding")
-pyplot.plot(x,clusterSizes56_1dof,marker='o',label="(5,6) All Contacts Sliding")
-pyplot.plot(x,clusterSizes56_2dof,marker='o',label="(5,6) All Contacts Not Sliding")
-pyplot.xlabel("Lattice Type",fontsize=fontsizeLabel)
-pyplot.ylabel(r"Normalized Cluster Size $\frac{S}{N}$",fontsize=fontsizeLabel)
-pyplot.legend(fontsize=fontsizeLabel)
-pyplot.ylim((-0.001,1))
-pyplot.tight_layout()
-
+"""
+Mike: 3/7/2023
+Below are the BCC and FCC lattices that are more coordinated than the SC lattice above.  They're not coded right and 
+should not be used unless they're fixed.  I'm not sure what was going wrong but I suspect it was the intersitial sites 
+that were the problems.
+"""
+#
+# #Body Centered Cubic Lattice BCC
+# positionsBCCMain = np.array([[0,0,0],[0,1,0],[0,1,1],[0,0,1],[1,0,1],[1,1,1],[1,1,0],[1,0,0]])
+# positionsBCCMainInit = positionsBCCMain
+# positionsBCCInter = np.array([[.5,.5,.5]])
+# positionsBCCInterInit = positionsBCCInter
+# radiiBCC = np.sqrt(3)/4
+# boxSizeBCC = np.array([2,2,2])
+# #Expand the lattice so that particles don't interact with a single particle twice in periodic boundary conditions
+# shifts = np.array([[0,1,0],[1,1,0],[1,0,0],[0,1,1],[1,1,1],[1,0,1],[0,0,1]])
+# #Shift main sites
+# for shift in shifts:
+#     positionsBCC = np.vstack((positionsBCC,positionsBCCMainInit+shift*np.max(boxSizeBCC)))
+# #Shift Inter sites
+# for shift in shifts:
+#     positionsBCCInter = np.vstack((positionsBCCInter,positionsBCCInterInit+shift*np.max(boxSizeBCC)))
+#     positionsBCCInter = np.vstack((positionsBCCInter, positionsBCCInterInit + shift*.5*np.max(boxSizeBCC)))
+# #Collate main sites and intersitial sites
+# positionsBCC = np.vstack((positionsBCC,positionsBCCInter))
+# #This naive way of shifting the lattice gives doubles of interior boundary particles
+# positionsBCC = np.unique(positionsBCC, axis=0)
+# #Expand the boxsize
+# boxSizeBCC=2*boxSizeBCC
+# radiiBCC=radiiBCC*np.ones(len(positionsBCC))
+# contactDataBCC = hessianDataGenerator(positionsBCC,radiiBCC,boxSizeBCC,0)
+# contactListBCC = contactDataBCC[:,:3]
+# #Check number of neighbors of particle 0
+# for particle in range(0,int(np.max(contactListBCC[:,:2]))):
+#     print("Particle " +str(particle)+ " has "+str(np.sum(contactListBCC[:,:2]==particle))+" neighbors")
+#
+#
+# #Face Centered Cubic Lattice FCC
+# positionsFCCMain = np.array([[0,0,0],[0,1,0],[0,1,1],[0,0,1],[1,0,1],[1,1,1],[1,1,0],[1,0,0]])
+# positionsFCCMainInit = positionsFCCMain
+# positionsFCCInter = np.array([[1,.5,.5],[.5,0,.5],[.5,.5,0],[.5,1,.5],[.5,.5,1]])
+# positionsFCCInterInit = positionsFCCInter
+# radiiFCC = 1/np.sqrt(8)
+# boxSizeFCC = np.array([2,2,2])
+# #Expand the lattice so that particles don't interact with a single particle twice in periodic boundary conditions
+# shifts = np.array([[0,1,0],[1,1,0],[1,0,0],[0,1,1],[1,1,1],[1,0,1],[0,0,1]])
+# #Shift main sites
+# for shift in shifts:
+#     positionsFCC = np.vstack((positionsFCC,positionsFCCMainInit+shift*np.max(boxSizeFCC)))
+# #Shift intersitial sites
+# for shift in shifts:
+#     positionsFCCInter = np.vstack((positionsFCCInter,positionsFCCInterInit+shift*np.max(boxSizeFCC)))
+#     positionsFCCInter = np.vstack((positionsFCCInter, positionsFCCInterInit + shift*.5*np.max(boxSizeFCC)))
+# #Collate main sites and intersitial sites
+# positionsFCC = np.vstack((positionsFCC,positionsFCCInter))
+# #This naive way of shifting the lattice gives doubles of interior boundary particles
+# positionsFCC = np.unique(positionsFCC, axis=0)
+# #Expand the boxsize
+# boxSizeFCC=2*boxSizeFCC
+# radiiFCC=radiiFCC*np.ones(len(positionsFCC))
+# contactDataFCC = hessianDataGenerator(positionsFCC,radiiFCC,boxSizeFCC,0)
+# contactListFCC = contactDataFCC[:,:3]
+#
+# #Plot all the lattices for sanity check
+# fig = pyplot.figure()
+# ax = fig.add_subplot(projection='3d')
+# #ax.scatter(positionsSC[:,0], positionsSC[:,1], positionsSC[:,2], marker='v',color="green",label="SC")
+# ax.scatter(positionsBCC[:,0], positionsBCC[:,1], positionsBCC[:,2], marker='o',color="red",label="BCC")
+# #ax.scatter(positionsFCC[:,0], positionsFCC[:,1], positionsFCC[:,2], marker='v',color="black",label="FCC")
+# pyplot.legend()
