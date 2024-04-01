@@ -211,55 +211,6 @@ def hessianMatrixGenerator(numParticles,contactData,kn,k_t,fullMatrix=True,cylin
         Hii[4, 5] = -Ai * Aj * kt * ny0 * nz0
         Hii[5, 5] = Ai * Aj * kt * (1 - (nz0 ** 2))
 
-        # Stick this into the appropriate places:
-        # Hijdiag = np.zeros((3, 3))
-        # Hijdiag[0, 0] = diagsquare[0, 0] * nx0**2 + diagsquare[1, 1] * tx0**2
-        # Hijdiag[0, 1] = diagsquare[0, 0] * nx0 * ny0 + diagsquare[1, 1] * tx0 * ty0
-        # Hijdiag[1, 0] = diagsquare[0, 0] * ny0 * nx0 + diagsquare[1, 1] * ty0 * tx0
-        # Hijdiag[1, 1] = diagsquare[0, 0] * ny0**2 + diagsquare[1, 1] * ty0**2
-        # Hijdiag[0, 2] = diagsquare[1, 2] * tx0
-        # Hijdiag[1, 2] = diagsquare[1, 2] * ty0
-        # Hijdiag[2, 0] = diagsquare[2, 1] * tx0
-        # Hijdiag[2, 1] = diagsquare[2, 1] * ty0
-        # Hijdiag[2, 2] = diagsquare[2, 2]
-
-        # And then *add* it to the diagnual
-        # hessianRowHolder = np.append([3*i,3*i,3*i+1,3*i+1,3*i,3*i+1,3*i+2,3*i+2,3*i+2],hessianRowHolder)
-        # hessianColHolder = np.append([3*i,3*i+1,3*i,3*i+1,3*i+2,3*i+2,3*i,3*i+1,3*i+2],hessianColHolder)
-        # currentMatCValues = [diagsquare[0, 0] * nx0**2 + diagsquare[1, 1] * tx0**2,diagsquare[0, 0] * nx0 * ny0 + diagsquare[1, 1] * tx0 * ty0,diagsquare[0, 0] * ny0 * nx0 + diagsquare[1, 1] * ty0 * tx0,diagsquare[0, 0] * ny0**2 + diagsquare[1, 1] * ty0**2,diagsquare[1, 2] * tx0,diagsquare[1, 2] * ty0,diagsquare[2, 1] * tx0,diagsquare[2, 1] * ty0,diagsquare[2, 2]]
-        # hessianDataHolder = np.append(currentMatCValues / mi,hessianDataHolder)
-        if fullMatrix ==True:
-            #Finn, I need your help here
-        else:
-
-            hessianRowHolder = np.append(
-                [6 * i, 6 * i, 6 * i, 6 * i, 6 * i, 6 * i, 6 * i + 1, 6 * i + 1, 6 * i + 1, 6 * i + 1, 6 * i + 1,
-                 6 * i + 1, 6 * i + 2, 6 * i + 2, 6 * i + 2, 6 * i + 2, 6 * i + 2, 6 * i + 2, 6 * i + 3, 6 * i + 3,
-                 6 * i + 3, 6 * i + 3, 6 * i + 3, 6 * i + 3, 6 * i + 4, 6 * i + 4, 6 * i + 4, 6 * i + 4, 6 * i + 4,
-                 6 * i + 4, 6 * i + 5, 6 * i + 5, 6 * i + 5, 6 * i + 5, 6 * i + 5, 6 * i + 5], hessianRowHolder)
-            hessianColHolder = np.append(
-                [6 * i, 6 * i + 1, 6 * i + 2, 6 * i + 3, 6 * i + 4, 6 * i + 5, 6 * i, 6 * i + 1, 6 * i + 2, 6 * i + 3,
-                 6 * i + 4, 6 * i + 5, 6 * i, 6 * i + 1, 6 * i + 2, 6 * i + 3, 6 * i + 4, 6 * i + 5, 6 * i, 6 * i + 1,
-                 6 * i + 2, 6 * i + 3, 6 * i + 4, 6 * i + 5, 6 * i, 6 * i + 1, 6 * i + 2, 6 * i + 3, 6 * i + 4,
-                 6 * i + 5, 6 * i, 6 * i + 1, 6 * i + 2, 6 * i + 3, 6 * i + 4, 6 * i + 5], hessianColHolder)
-            currentMatCValues = [Hii[0, 0], Hii[0, 1], Hii[0, 2], Hii[0, 3], Hii[0, 4], Hii[0, 5], Hii[1, 0], Hii[1, 2],
-                                 Hii[1, 3], Hii[1, 4], Hii[1, 5], Hii[2, 0], Hii[2, 1], Hii[2, 3], Hii[2, 4], Hii[2, 5],
-                                 Hii[3, 0], Hii[3, 1], Hii[3, 2], Hii[3, 3], Hii[3, 4], Hii[3, 5], Hii[4, 0], Hii[4, 1],
-                                 Hii[4, 2], Hii[4, 3], Hii[4, 4], Hii[4, 5], Hii[5, 0], Hii[5, 1], Hii[5, 2], Hii[5, 3],
-                                 Hii[5, 4], Hii[5, 5]]
-            hessianDataHolder = np.append(currentMatCValues / mi, hessianDataHolder)
-
-        # hessianHolder[3 * i:(3 * i + 3), 3 * i:(3 * i + 3),counter] += Hijdiag / mi
-
-        # And once more for the jj contribution, which is the same whizz with the flipped sign of n and t
-        # and adjusted A's
-        # diagsquare = np.zeros((3, 3))
-        # diagsquare[0, 0] = kn
-        # diagsquare[1, 1] = -fn / rval + kt
-        # diagsquare[1, 2] = kt * Aj
-        # diagsquare[2, 1] = kt * Aj
-        # diagsquare[2, 2] = kt * Aj**2
-
         Hjj = np.zeros((6, 6))
         Hjj[0, 0] = (((fn / rval) - kt) * (1 - nx0 ** 2)) + kn * nx0 ** 2
         Hjj[1, 0] = (kn + (fn / rval) - kt) * nx0 * ny0
@@ -291,6 +242,62 @@ def hessianMatrixGenerator(numParticles,contactData,kn,k_t,fullMatrix=True,cylin
         Hjj[3, 5] = -Aj * Aj * kt * nx0 * nz0
         Hjj[4, 5] = -Aj * Aj * kt * ny0 * nz0
         Hjj[5, 5] = Aj * Aj * kt * (1 - (nz0 ** 2))
+
+        # Stick this into the appropriate places:
+        # Hijdiag = np.zeros((3, 3))
+        # Hijdiag[0, 0] = diagsquare[0, 0] * nx0**2 + diagsquare[1, 1] * tx0**2
+        # Hijdiag[0, 1] = diagsquare[0, 0] * nx0 * ny0 + diagsquare[1, 1] * tx0 * ty0
+        # Hijdiag[1, 0] = diagsquare[0, 0] * ny0 * nx0 + diagsquare[1, 1] * ty0 * tx0
+        # Hijdiag[1, 1] = diagsquare[0, 0] * ny0**2 + diagsquare[1, 1] * ty0**2
+        # Hijdiag[0, 2] = diagsquare[1, 2] * tx0
+        # Hijdiag[1, 2] = diagsquare[1, 2] * ty0
+        # Hijdiag[2, 0] = diagsquare[2, 1] * tx0
+        # Hijdiag[2, 1] = diagsquare[2, 1] * ty0
+        # Hijdiag[2, 2] = diagsquare[2, 2]
+
+        # And then *add* it to the diagnual
+        # hessianRowHolder = np.append([3*i,3*i,3*i+1,3*i+1,3*i,3*i+1,3*i+2,3*i+2,3*i+2],hessianRowHolder)
+        # hessianColHolder = np.append([3*i,3*i+1,3*i,3*i+1,3*i+2,3*i+2,3*i,3*i+1,3*i+2],hessianColHolder)
+        # currentMatCValues = [diagsquare[0, 0] * nx0**2 + diagsquare[1, 1] * tx0**2,diagsquare[0, 0] * nx0 * ny0 + diagsquare[1, 1] * tx0 * ty0,diagsquare[0, 0] * ny0 * nx0 + diagsquare[1, 1] * ty0 * tx0,diagsquare[0, 0] * ny0**2 + diagsquare[1, 1] * ty0**2,diagsquare[1, 2] * tx0,diagsquare[1, 2] * ty0,diagsquare[2, 1] * tx0,diagsquare[2, 1] * ty0,diagsquare[2, 2]]
+        # hessianDataHolder = np.append(currentMatCValues / mi,hessianDataHolder)
+        if fullMatrix ==True:
+            #Finn, I need your help here
+            hessian[6*i:(6*i+6),6*i:(6*i+6)]=Hii/mi
+
+            hessian[6*j:(6*j+6),6*j:(6*j+6)]=Hjj/mj
+
+
+
+        else:
+
+            hessianRowHolder = np.append(
+                [6 * i, 6 * i, 6 * i, 6 * i, 6 * i, 6 * i, 6 * i + 1, 6 * i + 1, 6 * i + 1, 6 * i + 1, 6 * i + 1,
+                 6 * i + 1, 6 * i + 2, 6 * i + 2, 6 * i + 2, 6 * i + 2, 6 * i + 2, 6 * i + 2, 6 * i + 3, 6 * i + 3,
+                 6 * i + 3, 6 * i + 3, 6 * i + 3, 6 * i + 3, 6 * i + 4, 6 * i + 4, 6 * i + 4, 6 * i + 4, 6 * i + 4,
+                 6 * i + 4, 6 * i + 5, 6 * i + 5, 6 * i + 5, 6 * i + 5, 6 * i + 5, 6 * i + 5], hessianRowHolder)
+            hessianColHolder = np.append(
+                [6 * i, 6 * i + 1, 6 * i + 2, 6 * i + 3, 6 * i + 4, 6 * i + 5, 6 * i, 6 * i + 1, 6 * i + 2, 6 * i + 3,
+                 6 * i + 4, 6 * i + 5, 6 * i, 6 * i + 1, 6 * i + 2, 6 * i + 3, 6 * i + 4, 6 * i + 5, 6 * i, 6 * i + 1,
+                 6 * i + 2, 6 * i + 3, 6 * i + 4, 6 * i + 5, 6 * i, 6 * i + 1, 6 * i + 2, 6 * i + 3, 6 * i + 4,
+                 6 * i + 5, 6 * i, 6 * i + 1, 6 * i + 2, 6 * i + 3, 6 * i + 4, 6 * i + 5], hessianColHolder)
+            currentMatCValues = [Hii[0, 0], Hii[0, 1], Hii[0, 2], Hii[0, 3], Hii[0, 4], Hii[0, 5], Hii[1, 0], Hii[1, 2],
+                                 Hii[1, 3], Hii[1, 4], Hii[1, 5], Hii[2, 0], Hii[2, 1], Hii[2, 3], Hii[2, 4], Hii[2, 5],
+                                 Hii[3, 0], Hii[3, 1], Hii[3, 2], Hii[3, 3], Hii[3, 4], Hii[3, 5], Hii[4, 0], Hii[4, 1],
+                                 Hii[4, 2], Hii[4, 3], Hii[4, 4], Hii[4, 5], Hii[5, 0], Hii[5, 1], Hii[5, 2], Hii[5, 3],
+                                 Hii[5, 4], Hii[5, 5]]
+            hessianDataHolder = np.append(currentMatCValues / mi, hessianDataHolder)
+
+        # hessianHolder[3 * i:(3 * i + 3), 3 * i:(3 * i + 3),counter] += Hijdiag / mi
+
+        # And once more for the jj contribution, which is the same whizz with the flipped sign of n and t
+        # and adjusted A's
+        # diagsquare = np.zeros((3, 3))
+        # diagsquare[0, 0] = kn
+        # diagsquare[1, 1] = -fn / rval + kt
+        # diagsquare[1, 2] = kt * Aj
+        # diagsquare[2, 1] = kt * Aj
+        # diagsquare[2, 2] = kt * Aj**2
+
 
         # Hjidiag = np.zeros((3, 3))
         # Hjidiag[0, 0] = diagsquare[0, 0] * (-nx0)**2 + diagsquare[1, 1] * (-tx0)**2
